@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AttachmentMenu from "./inputbar/AttachmentMenu";
 import EmojiPicker from "./inputbar/EmojiPicker";
 import TextInput from "./inputbar/TextInput";
@@ -21,9 +21,41 @@ export default function MessageInputBar({conversationId}: {conversationId: strin
   const [sendingMessage, setSendingMessage] = useState(false);
   const [error, setError] = useState<string|null> (null); //error on sending message;
   const { currentUser } = useAppSelector(state=>state.user);
+  const { activeConversation } = useAppSelector(state=>state.conversation);
   const dispatch = useAppDispatch();
   
   const { sendMessage, loading, error:hookError } = useCreateMessage();  
+  const ws = useWebSocket();
+
+ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+const isTyping = useRef(false);
+
+  const handleTyping = () => {
+    if (!ws || !currentUser || !activeConversation) return;
+
+    if (!isTyping.current) {
+      safeSend(ws, {
+        type: "typing",
+        conversationId: activeConversation._id,
+        userId: currentUser._id,
+      });
+      isTyping.current = true;
+    }
+
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+    }
+
+    typingTimeout.current = setTimeout(() => {
+      safeSend(ws, {
+        type: "stopTyping",
+        conversationId: activeConversation._id,
+        userId: currentUser._id,
+      });
+      isTyping.current = false;
+    }, 1000);
+  };
+
   const handleSend = async () => {
     setError(null);
     if (!message.trim()) {
@@ -69,10 +101,13 @@ export default function MessageInputBar({conversationId}: {conversationId: strin
         />
         <EmojiPicker onSelect={handleEmojiSelect} />
 
+
+        
         <TextInput
           message={message}
           setMessage={setMessage}
           onKeyPress={handleKeyPress}
+          sendTypingStatus={handleTyping}
         />
 
         {

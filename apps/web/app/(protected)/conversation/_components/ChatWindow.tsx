@@ -49,24 +49,13 @@ const ChatWindow: React.FC = () => {
     if (!ws || !activeConversation?._id) return;
 
     safeSend(ws, { type: 'join', conversationId: activeConversation._id as string});
-    // safeSend(ws, { type: "message", coversationId: activeConversation?._id as string, messsage: {message: "ja g le apni zindagi"}})
-    // ws.onmessage = (e) => {
-    //   // console.log("receving message", e);
-    //   const data = JSON.parse(e.data);
-    //   console.log("recieved data in chat window", data)
-    //   const { conversation, message } = data.message;
-    //   if(conversation && message){
-    //     dispatch(updateConversation(conversation))
-    //     dispatch(addMessageToConversation({
-    //       conversationId: conversation?._id as string,
-    //       messages: [message]
-    //     }))
-    //     return;
-    //   }
-    //   console.log("not good!")
-      
-    // };
-  }, [ws, dispatch, activeConversation?._id]);
+    
+    safeSend(ws, { type: "online", userId: currentUser?._id });
+    return () => {
+      safeSend(ws, { type: "offline", userId: currentUser?._id });
+    }
+    
+  }, [ws, currentUser, dispatch, activeConversation?._id]);
 
 
   const { getAllMessageByConversation, loading, error } = useGetMessageByConversation();

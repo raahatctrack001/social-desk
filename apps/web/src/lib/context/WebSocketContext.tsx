@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { safeSend } from './safeSend';
 import { updateConversation } from '../store/slices/conversation.slice';
 import { addMessageToConversation } from '../store/slices/message.slice';
-import { setUserOffline, setUserOnline } from '../store/slices/onlineStatus.slice';
+import { setTyping, setUserOffline, setUserOnline, stopTyping } from '../store/slices/status.slice';
 
 const WebSocketContext = createContext<WebSocket | null>(null);
 
@@ -49,11 +49,19 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
         console.log("dispatched but from socket context")
         break;
         case 'status': 
-        console.log("online data", data)
         if(data.isOnline)
           dispatch(setUserOnline({userId:data.userId, timestamp: data.timestamp}))
         else
-          dispatch(setUserOffline({userId: data.userId, timestamp: data.timestamp}))
+        dispatch(setUserOffline({userId: data.userId, timestamp: data.timestamp}))
+      break;
+      case "typing":
+        console.log("online data", data)
+          dispatch(setTyping({ conversationId: data.conversationId, userId: data.userId }));
+          break;
+      case "stopTyping":
+          dispatch(stopTyping({ conversationId: data.conversationId, userId: data.userId }));
+          break;
+
         // case "delivered":
       //   dispatch(markDelivered(data.messageId));
       //   break;
