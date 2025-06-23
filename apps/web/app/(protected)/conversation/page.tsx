@@ -30,6 +30,7 @@ const ChatPage: React.FC = () => {
     }, [conversationId, ac])  
 
     const ws = useWebSocket();
+    
     useEffect(() => {
       safeSend(ws, { type: "online", userId: currentUser?._id });
       return () => {

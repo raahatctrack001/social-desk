@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { safeSend } from './safeSend';
 import { updateConversation } from '../store/slices/conversation.slice';
 import { addMessageToConversation } from '../store/slices/message.slice';
+import { setUserOnline } from '../store/slices/onlineStatus.slice';
 
 const WebSocketContext = createContext<WebSocket | null>(null);
 
@@ -10,12 +11,13 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [conversationId, setConversationId] = useState<string>("");
   const { activeConversation } = useAppSelector(state=>state.conversation)
-  
+  const { currentUser } = useAppSelector(state=>state.user);
   const dispatch = useAppDispatch();
 
   useEffect(()=>{
     setConversationId(activeConversation?._id as string)
   }, [activeConversation])
+
   useEffect(() => {
     const port = process.env.NEXT_PUBLIC_WEBSOCKET_PORT;
     
@@ -33,18 +35,22 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
 
     ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
+  console.log("context data", data);
   const { conversationId, userId, messageId, message, reaction } = data
   switch (data.type) {
       case "message":        
         if(message?.conversation && message?.message){
           dispatch(updateConversation(message?.conversation))
           dispatch(addMessageToConversation({
-            conversationId: conversationId,
+            conversationId: data.conversationId,
             messages: [message?.message]
           }))
         }
         console.log("dispatched but from socket context")
         break;
+        case 'status': 
+        console.log("online data", data)
+        dispatch(setUserOnline({userId:data.userId, timestamp:data.timestamp}))
       // case "delivered":
       //   dispatch(markDelivered(data.messageId));
       //   break;
