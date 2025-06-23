@@ -8,7 +8,7 @@ import reelReducer from './slices/reel.slice'
 import themeReducer from './slices/theme.slice'
 import conversationReducer from './slices/conversation.slice'
 import messageReducer from './slices/message.slice'
-
+import onlineStatusReducer from './slices/onlineStatus.slice'
 
 // Combine reducers first
 const rootReducer = combineReducers({
@@ -17,7 +17,8 @@ const rootReducer = combineReducers({
   reel: reelReducer,
   theme: themeReducer,
   conversation: conversationReducer,
-  message: messageReducer
+  message: messageReducer,
+  onlineStatus: onlineStatusReducer,
 })
 
 // Redux Persist config
