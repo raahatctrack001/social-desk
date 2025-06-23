@@ -81,7 +81,7 @@ export default function ChatHeader() {
                 {onlineStatus?.isOnline
                   ? "Online"
                   : onlineStatus?.lastSeen
-                  ? `last seen: ${new Date(onlineStatus.lastSeen).toLocaleString()}`
+                  ? `last seen: ${new Date(onlineStatus.lastSeen)?.toLocaleString()?.split(",")[1]}`
                   : "Offline"}
               </span>
             ) : (

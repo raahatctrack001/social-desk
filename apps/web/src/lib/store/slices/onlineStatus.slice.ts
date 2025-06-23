@@ -9,17 +9,17 @@ const onlineStatusSlice = createSlice({
     name: "onlineStatus",
     initialState,
     reducers: {
-        setUserOnline(state, action: PayloadAction<{userId: string, timestamp: Date|null}>) {
+        setUserOnline(state, action: PayloadAction<{userId: string, timestamp: Date}>) {
           state.users[action.payload.userId] = {
             isOnline: true,
-            lastSeen: action.payload.timestamp || null,
+            lastSeen: action.payload.timestamp || new Date(),
           };
           console.log(`user ${action.payload.userId} is now online`);
         },
-        setUserOffline(state, action: PayloadAction<{ userId: string; lastSeen: Date }>) {
+        setUserOffline(state, action: PayloadAction<{ userId: string; timestamp: Date }>) {
             state.users[action.payload.userId] = {
             isOnline: false,
-            lastSeen: action.payload.lastSeen || new Date(),
+            lastSeen: action.payload.timestamp || new Date(),
             };
         },    
     }
